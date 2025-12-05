@@ -1,4 +1,4 @@
-import NanoCache from './nano-cache.js'
+import NanoCache from './dist/nano-cache.js'
 
 const cache = new NanoCache({
   defaultTTL: 60_000,

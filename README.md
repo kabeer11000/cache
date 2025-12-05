@@ -218,6 +218,8 @@ npm run build
 npm test
 ```
 
+The test suite includes 10 comprehensive unit tests with 44 assertions covering all major features. See [TESTING.md](TESTING.md) for detailed documentation.
+
 ### TypeScript Config
 
 ```json

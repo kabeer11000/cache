@@ -4,11 +4,6 @@
 
 Fast. Tiny. Fully-featured. Perfect for serverless, microservices, workers, or high-performance backend usage.
 
-> **Author:** Seyyed Ali Mohammadiyeh (Max Base)
-> **GitHub:** [https://github.com/BaseMax](https://github.com/BaseMax)
-> **Repo:** [https://github.com/BaseMax/nano-speed-cache](https://github.com/BaseMax/nano-speed-cache)
-> **License:** MIT
-
 ---
 
 ## ✨ Features

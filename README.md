@@ -1,6 +1,6 @@
 # nano-speed-cache
 
-**Ultra-small (<5KB) in-memory cache for Node.js & browsers — with TTL, LRU eviction, stale-while-revalidate, stale-if-error, async deduplication (`getOrSet`), disposal hooks, deep cloning, and zero dependencies.**
+**Ultra-small (<5KB) in-memory cache for Node.js & browsers with TTL, LRU eviction, stale-while-revalidate, stale-if-error, async deduplication (`getOrSet`), disposal hooks, deep cloning, and zero dependencies.**
 
 Fast. Tiny. Fully-featured. Perfect for serverless, microservices, workers, or high-performance backend usage.
 
@@ -8,7 +8,7 @@ Fast. Tiny. Fully-featured. Perfect for serverless, microservices, workers, or h
 
 ## ✨ Features
 
-* ⚡ **Extremely fast** — O(1) get/set using `Map`
+* ⚡ **Extremely fast** O(1) get/set using `Map`
 * 🧠 **TTL support** (per-key or default)
 * ♻️ **LRU eviction** when max size is reached
 * 🕰️ **Stale-While-Revalidate (SWR)** window support

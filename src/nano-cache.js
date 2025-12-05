@@ -1,22 +1,11 @@
 /**
- * nano-cache v2 — The smallest full-featured in-memory cache
- * Size: ~4.3 KB minified+gzipped
- * Works in Node.js ≥14, Deno, Bun, Browser, Cloudflare Workers
- *
- * Full feature list:
- * ✓ set/get/has/del/peek
- * ✓ TTL + auto-expiry + manual ttl(key, newTTL)
- * ✓ maxSize with LRU eviction
- * ✓ Background auto-cleanup (configurable or disabled)
- * ✓ Stale-while-revalidate & stale-if-error
- * ✓ getOrSet() + async wrap() with deduplication
- * ✓ Batch: mget(), mset(), mdel()
- * ✓ Iterators: keys(), values(), entries()
- * ✓ Events: on('expire', callback), on('evict', callback)
- * ✓ Deep cloning option (structuredClone fallback)
- * ✓ Memory usage estimation
- * ✓ dispose() for cleanup
- * ✓ Tiny, zero dependencies: NONE
+ * 
+ * @name: nano-cache
+ * @author: Seyyed Ali Mohammadiyeh (Max Base)
+ * @github: https://github.com/basemax/
+ * @license: MIT
+ * @date: 12/05/2025
+ * 
  */
 
 class NanoCache {
@@ -34,15 +23,13 @@ class NanoCache {
   constructor(options = {}) {
     this.opts = { ...NanoCache.DEFAULTS, ...options };
 
-    this._map = new Map();                    // key → { v, e, t, a }
+    this._map = new Map(); // key → { v, e, t, a }
     // v = value, e = expiry timestamp (0 = never), t = touch timestamp (for LRU), a = access count
     this._timers = null;
     this._events = new Map([['expire', []], ['evict', []]]);
 
     if (this.opts.checkPeriod > 0) this._startCleanupTimer();
   }
-
-  // —————————————————————— Core API ——————————————————————
 
   set(key, value, ttl = this.opts.defaultTTL) {
     const now = Date.now();
@@ -71,7 +58,6 @@ class NanoCache {
     const now = Date.now();
     const expired = entry.e !== 0 && entry.e < now;
 
-    // Stale handling
     if (expired) {
       if (this.opts.allowStale) {
         if (touch) this._touch(entry);
@@ -116,8 +102,6 @@ class NanoCache {
     return this;
   }
 
-  // —————————————————————— TTL Management ——————————————————————
-
   ttl(key, newTTL) {
     const entry = this._map.get(key);
     if (!entry) return null;
@@ -131,8 +115,6 @@ class NanoCache {
     const remaining = entry.e - Date.now();
     return remaining > 0 ? remaining : 0;
   }
-
-  // —————————————————————— Batch Operations ——————————————————————
 
   mget(keys) {
     return keys.map(k => this.get(k));
@@ -150,14 +132,10 @@ class NanoCache {
     return this;
   }
 
-  // —————————————————————— Async Helpers ——————————————————————
-
-  /** Get or compute value (with in-flight deduplication) */
   async getOrSet(key, loader, ttl = this.opts.defaultTTL) {
     const existing = this.get(key);
     if (existing !== undefined) return existing;
 
-    // In-flight deduplication
     let pending = this._pending?.get(key);
     if (!pending) {
       pending = loader().then(
@@ -168,7 +146,6 @@ class NanoCache {
         },
         err => {
           this._pending.delete(key);
-          // Stale-if-error
           if (this.opts.staleIfError > 0) {
             const old = this.peek(key);
             if (old !== undefined && Date.now() - (this._map.get(key)?.e || 0) < this.opts.staleIfError) {
@@ -185,19 +162,15 @@ class NanoCache {
     return pending;
   }
 
-  /** Classic memoize-style wrapper */
   wrap(key, loader, ttl) {
     return () => this.getOrSet(key, loader, ttl);
   }
-
-  // —————————————————————— Introspection ——————————————————————
 
   get size() { return this._map.size; }
 
   keys()   { return this._map.keys(); }
   values() { return Array.from(this._map.values()).map(e => e.v); }
-  entries() {
-    { return Array.from(this._map).map(([k, e]) => [k, e.v]); }
+  entries() { return Array.from(this._map).map(([k, e]) => [k, e.v]); }
 
   stats() {
     const now = Date.now();
@@ -212,8 +185,6 @@ class NanoCache {
       estimatedBytes: totalSize,
     };
   }
-
-  // —————————————————————— Events ——————————————————————
 
   on(event, callback) {
     if (!this._events.has(event)) return this;
@@ -237,8 +208,6 @@ class NanoCache {
     }
   }
 
-  // —————————————————————— Cleanup & Disposal ——————————————————————
-
   _startCleanupTimer() {
     if (this._timers) return;
     const cb = () => {
@@ -252,7 +221,6 @@ class NanoCache {
     if (this._timers.unref) this._timers.unref();
   }
 
-  /** Remove expired entries, return count cleaned */
   _cleanup(limit = Infinity) {
     const now = Date.now();
     let cleaned = 0;
@@ -272,7 +240,7 @@ class NanoCache {
     let oldestTime = Infinity;
 
     for (const [k, e] of this._map) {
-      const score = e.t * 1_000_000 - e.a; // simple LRU + anti-starvation
+      const score = e.t * 1_000_000 - e.a;
       if (score < oldestTime) {
         oldestTime = score;
         oldestKey = k;
@@ -318,8 +286,6 @@ class NanoCache {
     if (typeof val === 'object') return Object.keys(val).length * 64;
     return 100; // fallback
   }
-
-  // —————————————————————— Finalization ——————————————————————
 
   dispose() {
     if (this._timers) {

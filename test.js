@@ -1,6 +1,5 @@
 import NanoSpeedCache from './dist/nano-speed-cache.js'
 
-// Simple test harness
 let testsPassed = 0;
 let testsFailed = 0;
 
@@ -59,7 +58,6 @@ console.log('\nTest 2: TTL expiration');
   
   assertEquals(cache.get('expiring'), undefined, 'Value is undefined after expiration');
   
-  // Test with custom TTL
   cache.set('custom', 'data', 200);
   const ttl = cache.ttl('custom');
   assert(ttl > 0 && ttl <= 200, 'TTL returns remaining time');
@@ -77,13 +75,11 @@ console.log('\nTest 3: LRU eviction');
   
   assertEquals(cache.size, 3, 'Cache size at max');
   
-  // Access 'a' and 'c' to make them more recent with time gaps
   await sleep(10);
   cache.get('a');
   await sleep(10);
   cache.get('c');
   
-  // Add new item, should evict 'b' (least recently used)
   await sleep(10);
   cache.set('d', 4);
   
@@ -104,12 +100,10 @@ console.log('\nTest 4: Stale-while-revalidate');
   
   await sleep(100);
   
-  // After expiration but within stale-while-revalidate window
   assertEquals(cache.get('stale-key'), 'stale-value', 'Stale value is returned during revalidation window');
   
   await sleep(150);
   
-  // Beyond stale-while-revalidate window
   assertEquals(cache.get('stale-key'), undefined, 'Value is undefined after SWR window');
 }
 
@@ -125,7 +119,6 @@ console.log('\nTest 5: Async getOrSet with deduplication');
     return 'loaded-value';
   };
   
-  // Make multiple concurrent requests
   const promises = [
     cache.getOrSet('async-key', loader),
     cache.getOrSet('async-key', loader),
@@ -139,7 +132,6 @@ console.log('\nTest 5: Async getOrSet with deduplication');
   assertEquals(results[2], 'loaded-value', 'Third request returns loaded value');
   assertEquals(loadCount, 1, 'Loader was only called once (deduplication works)');
   
-  // Second call should use cached value
   const cached = await cache.getOrSet('async-key', loader);
   assertEquals(cached, 'loaded-value', 'Subsequent call uses cached value');
   assertEquals(loadCount, 1, 'Loader still only called once');
@@ -152,10 +144,8 @@ console.log('\nTest 6: peek method');
   cache.set('a', 1);
   cache.set('b', 2);
   
-  // Peek at 'a' (should not affect LRU)
   assertEquals(cache.peek('a'), 1, 'Peek returns correct value');
   
-  // Add a new item - 'a' should be evicted since peek didn't touch it
   cache.set('c', 3);
   
   assert(cache.get('a') === undefined, 'Peeked item was evicted (peek does not affect LRU)');
@@ -229,10 +219,9 @@ console.log('\nTest 10: Event listeners');
     events.evict.push(info);
   });
   
-  // Test eviction event
   cache.set('a', 1);
   cache.set('b', 2);
-  cache.set('c', 3); // Should trigger evict
+  cache.set('c', 3);
   
   await sleep(10);
   
@@ -242,10 +231,8 @@ console.log('\nTest 10: Event listeners');
     assertEquals(events.evict[0].reason, 'lru', 'Evict event reason is lru');
   }
   
-  // Test expiration event with shorter TTL and cleanup period
   cache.set('expiring', 'value', 50);
   
-  // Wait for cleanup cycle to run (checkPeriod is 50ms)
   await sleep(150);
   
   assert(events.expire.length > 0, 'Expire event was fired after cleanup cycle');

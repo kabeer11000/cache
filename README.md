@@ -1,4 +1,4 @@
-# nano-speed-cache
+# libcache
 
 **Ultra-small (<5KB) in-memory cache for Node.js & browsers with TTL, LRU eviction, stale-while-revalidate, stale-if-error, async deduplication (`getOrSet`), disposal hooks, deep cloning, and zero dependencies.**
 
